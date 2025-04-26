@@ -9,7 +9,7 @@ router = APIRouter()
 
 
 @router.post("/", summary="Предобработка аудиофайла.")
-async def process_audio(file: Annotated[UploadFile, File(...)]):
+async def process_audio(file: Annotated[UploadFile, File(...)]) -> StreamingResponse:
     """Принимает на вход аудиофайл, конвертирует его в моноканальный
     WAV формат с частотой дескритизации 16 кГц.
     """
