@@ -1,37 +1,51 @@
 from io import BytesIO
+import numpy as np
 
 import librosa
 import noisereduce as nr
-from pydub import AudioSegment
 import soundfile as sf
 
 
-def convert_audio(audio_bytestream: BytesIO, input_format: str) -> BytesIO:
-    """Функция принимает байтстрим аудиофайла и его исходный формат,
-    конвертируя его в WAV, меняя частоту дескритизации на 16 кГц,
-    переключает в моноканальный режим.
+def convert_audio(pcm_bytes: bytes) -> BytesIO:
+    """Функция принимает байты PCM аудиофайла, имеющего
+    заранее определенные характеристики, и конвертирует его
+    в моно WAV файл с частотой дискретизации 16 кГц.
 
     Args:
-        audio_bytes (BytesIO):  Байтстрим аудиофайла.
-        input_format (str): Исходный формат файла.
+        pcm_bytes (bytes): Байты аудиофайла.
 
     Returns:
-        BytesIO: Байтстрим конвертированного файла.
+        BytesIO: Байтстрим WAV файла.
     """
-    audio = AudioSegment.from_file(audio_bytestream, format=input_format)
-    audio = audio.set_frame_rate(16000).set_channels(1)
+    audio_data = np.frombuffer(pcm_bytes, dtype=np.int16)
+
+    audio_data = audio_data.reshape((-1, 2))
+    audio_data = audio_data.mean(axis=1).astype(np.int16)  # Среднее значение для моно
+
+    audio_data = librosa.resample(
+        audio_data.astype(np.float32) / 32768.0,  # Нормализация
+        orig_sr=44100,
+        target_sr=16000,
+    )
+    audio_data = (audio_data * 32768.0).astype(np.int16)  # Денормализация
 
     buffer = BytesIO()
-    audio.export(buffer, format="wav")
+    sf.write(buffer, audio_data, 16000, format="WAV", subtype="PCM_16")
     buffer.seek(0)
     return buffer
 
 
-def denoise_audio(audio_bytestream: BytesIO) -> BytesIO:
-    """Функция принимает байтстрим аудиофайла и старается убрать
+def denoise_audio(wav_bytestream: BytesIO) -> BytesIO:
+    """Функция принимает байтстрим WAV файла и старается убрать
     лишние шумы из аудио для улучшения качества звучания речи.
+
+    Args:
+        pcm_bytes (bytes): Байты аудиофайла.
+
+    Returns:
+        BytesIO: Байтстрим WAV файла без шумов.
     """
-    y, sr = librosa.load(audio_bytestream, sr=16000, mono=True)
+    y, sr = librosa.load(wav_bytestream, sr=16000, mono=True)
 
     reduced_noise = nr.reduce_noise(y=y, sr=sr)
 

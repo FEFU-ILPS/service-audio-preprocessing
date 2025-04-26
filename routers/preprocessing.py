@@ -14,15 +14,15 @@ async def process_audio(file: Annotated[UploadFile, File(...)]):
     WAV формат с частотой дескритизации 16 кГц.
     """
     try:
-        input_format = file.filename.split(".")[-1].lower()
-
-        converted_audio = convert_audio(file.file, input_format)
+        converted_audio = convert_audio(file.file)
         denoised_audio = denoise_audio(converted_audio)
 
         return StreamingResponse(
             denoised_audio,
             media_type="audio/wav",
-            headers={"Content-Disposition": f"attachment; filename=processed_{file.filename}.wav"},
+            headers={
+                "Content-Disposition": "attachment; filename=preprocessed_audio.wav",
+            },
         )
 
     except Exception as e:
