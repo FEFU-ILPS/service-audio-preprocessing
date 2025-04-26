@@ -26,4 +26,4 @@ build-backend = "poetry.core.masonry.api"
 
 [project.urls]
 repository = "https://github.com/FEFU-ILPS/service-audio-preprocessing"
-"Bug Tracker" = "https://github.com/FEFU-ILPS/service-audio-preprocession/issues"
+"Bug Tracker" = "https://github.com/FEFU-ILPS/service-audio-preprocessing/issues"
