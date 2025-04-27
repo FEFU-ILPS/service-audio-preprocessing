@@ -14,8 +14,6 @@ COPY ./pyproject.toml .
 
 RUN poetry install --only main --no-interaction --no-ansi --no-root
 
-COPY ./alembic.ini .
-
 COPY . .
 
 EXPOSE 8064
