@@ -13,6 +13,18 @@ async def process_audio(file: Annotated[UploadFile, File(...)]) -> StreamingResp
     """Принимает на вход аудиофайл, конвертирует его в моноканальный
     WAV формат с частотой дескритизации 16 кГц.
     """
+    if not file.filename.lower().endswith(".pcm"):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid file extension. Only files with the extension '.pcm' are allowed.",
+        )
+
+    if file.content_type not in ["application/octet-stream", None]:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid content type. Only application/octet-stream is allowed for PCM files.",
+        )
+
     file_bytes = await file.read()
     if len(file_bytes) % 4 != 0:  # 2 канала * 2 байта на выборку = 4 байта на фрейм
         raise HTTPException(
