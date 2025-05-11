@@ -1,8 +1,8 @@
 from io import BytesIO
-import numpy as np
 
 import librosa
 import noisereduce as nr
+import numpy as np
 import soundfile as sf
 
 

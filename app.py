@@ -2,7 +2,6 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-
 from routers import health_router, preprocessing_router
 
 
