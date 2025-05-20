@@ -5,6 +5,8 @@ import noisereduce as nr
 import numpy as np
 import soundfile as sf
 
+from service_logging import logger
+
 
 def convert_audio(pcm_bytes: bytes) -> BytesIO:
     """Функция принимает байты PCM аудиофайла, имеющего
@@ -17,6 +19,8 @@ def convert_audio(pcm_bytes: bytes) -> BytesIO:
     Returns:
         BytesIO: Байтстрим WAV файла.
     """
+    logger.info("Audio file format conversion...")
+
     audio_data = np.frombuffer(pcm_bytes, dtype=np.int16)
 
     audio_data = audio_data.reshape((-1, 2))
@@ -45,6 +49,8 @@ def denoise_audio(wav_bytestream: BytesIO) -> BytesIO:
     Returns:
         BytesIO: Байтстрим WAV файла без шумов.
     """
+    logger.info("Filtering out background noise...")
+
     y, sr = librosa.load(wav_bytestream, sr=16000, mono=True)
 
     reduced_noise = nr.reduce_noise(y=y, sr=sr)
